@@ -1,17 +1,27 @@
 package com.example.composeapplication
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,11 +48,11 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class NAV_ROUTE(val routeName: String, val description: String, val btnColor: Color) {
-    MAIN("MAIN", "메인 화면", Color(0xFF1538E6)),
+    MAIN("MAIN", "Main", Color(0xFF1538E6)),
     LOGIN("LOGIN", "Login", Color(0xFF150ED8)),
-    REGISTER("REGISTER", "회원가입 화면", Color(0xFF690505)),
-    USER_PROFILE("USER_PROFILE", "유저 프로필 화면", Color(0xFFD67411)),
-    SETTING("SETTING", "설정 화면", Color(0xFF19D3D3))
+    REGISTER("REGISTER", "Register", Color(0xFF690505)),
+    USER_PROFILE("USER_PROFILE", "User Profile", Color(0xFFD67411)),
+    SETTING("SETTING", "Setting", Color(0xFF19D3D3))
 }
 
 class RouteAction(navHostController: NavHostController) {
@@ -54,9 +64,9 @@ class RouteAction(navHostController: NavHostController) {
         navHostController.navigateUp()
     }
 
-    val toMain: () -> Unit = {
-        navHostController.navigate(NAV_ROUTE.MAIN.routeName)
-    }
+//    val toMain: (NAV_ROUTE) -> Unit = {
+//        navHostController.navigate(NAV_ROUTE.MAIN.routeName)
+//    }
 }
 
 
@@ -90,22 +100,96 @@ fun MainScreen(routeAction: RouteAction) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(Modifier.padding(16.dp)) {
 
-            NavButton(route = NAV_ROUTE.LOGIN, routeAction = routeAction)
+            NavButton(route = NAV_ROUTE.SETTING, routeAction = routeAction)
         }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(routeAction: RouteAction) {
-    Surface(Modifier.fillMaxSize()) {
-        Box(Modifier.padding(8.dp), Alignment.Center) {
-            Text(text = "로그인 화면", style = TextStyle(Color.White, 22.sp, FontWeight.Medium))
-            Button(onClick = routeAction.toMain,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .offset(y = 100.dp)
-            ) {
-                Text(text = "메인 화면으로 가기")
+    val context = LocalContext.current
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val default_id = "akakslslzz"
+    val default_password = "zzqqwoo1310!"
+
+    var id by remember { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    Surface(Modifier.fillMaxSize()){
+        Box(Modifier.padding(8.dp), Alignment.Center){
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(
+                    modifier = Modifier
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "ID",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(20.dp)
+                    )
+                    TextField(
+                        value = id,
+                        onValueChange = { id = it },
+                        label = { Text(text = "Enter ID") },
+                        textStyle = TextStyle(
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text).copy(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = {
+                            defaultKeyboardAction(imeAction = ImeAction.Next)
+                        })
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "PW",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text(text = "Enter password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboardController?.hide()
+                        })
+                    )
+                }
+
+                Row(){
+                    Button(
+                        onClick = {
+                            if (id == default_id && password == default_password)
+                                routeAction.navTo(NAV_ROUTE.MAIN)
+                            else
+                                Toast.makeText(context, "아이디 또는 비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT)
+                                    .show()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = "Login")
+                    }
+
+                    Button(
+                        onClick = {routeAction.navTo(NAV_ROUTE.REGISTER)},
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = "회원가입")
+                    }
+                }
             }
         }
     }
