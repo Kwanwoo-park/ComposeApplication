@@ -1,6 +1,7 @@
 package com.example.composeapplication
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,6 +31,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
+import com.google.firebase.FirebaseApp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,6 +52,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+val database = FirebaseDatabase.getInstance().getReference("User")
+var result = mutableMapOf<String, String>()
 
 enum class NAV_ROUTE(val routeName: String, val description: String, val btnColor: Color) {
     MAIN("MAIN", "Main", Color(0xFF1538E6)),
@@ -199,16 +208,40 @@ fun LoginScreen(routeAction: RouteAction) {
 fun RegisterScreen(routeAction: RouteAction) {
     Surface(Modifier.fillMaxSize()) {
         Box(Modifier.padding(8.dp), Alignment.Center) {
-            Text(text = "회원가입 화면", style = TextStyle(Color.White, 22.sp, FontWeight.Medium))
-            Button(onClick = routeAction.goBack,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .offset(y = 100.dp)
+            Button(onClick = { getNumber() }
             ) {
-                Text(text = "뒤로가기")
+                Text(text = "회원가입")
             }
         }
     }
+}
+
+fun getNumber() {
+    database.addListenerForSingleValueEvent(object: ValueEventListener{
+        override fun onDataChange(snapshot: DataSnapshot) {
+            var i = 0
+            for (column: DataSnapshot in snapshot.children) {
+                if (column.key != i.toString()) break
+                else i++
+            }
+
+            result.put("number", i.toString())
+            result.put("name", "pkw")
+            result.put("id", "akakslslzz")
+            result.put("password", "zzqqwoo1310!")
+            setDatabase()
+            Log.d("PKW", "general_num: $i")
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            //
+        }
+    })
+}
+
+fun setDatabase() {
+    database.child(result["number"].toString()).child("value").setValue(result)
+    database.push()
 }
 
 @Composable
