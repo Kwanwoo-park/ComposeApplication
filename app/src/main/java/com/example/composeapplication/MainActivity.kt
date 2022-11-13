@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
 val database = FirebaseDatabase.getInstance().getReference("User")
 var result = mutableMapOf<String, String>()
+var number = ""
 
 enum class NAV_ROUTE(val routeName: String, val description: String, val btnColor: Color) {
     MAIN("MAIN", "Main", Color(0xFF1538E6)),
@@ -118,11 +119,12 @@ fun MainScreen(routeAction: RouteAction) {
 @Composable
 fun LoginScreen(routeAction: RouteAction) {
     val context = LocalContext.current
-
     val keyboardController = LocalSoftwareKeyboardController.current
+    var check = false
 
-    val default_id = "akakslslzz"
-    val default_password = "zzqqwoo1310!"
+    var default_id = ""
+    var default_password = ""
+    var name = ""
 
     var id by remember { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -131,7 +133,8 @@ fun LoginScreen(routeAction: RouteAction) {
         Box(Modifier.padding(8.dp), Alignment.Center){
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(
-                    modifier = Modifier
+                    verticalAlignment = Alignment.CenterVertically
+                    ,modifier = Modifier
                         .padding(20.dp)
                 ) {
                     Text(
@@ -157,7 +160,8 @@ fun LoginScreen(routeAction: RouteAction) {
                 }
 
                 Row(
-                    modifier = Modifier
+                    verticalAlignment = Alignment.CenterVertically
+                    ,modifier = Modifier
                         .padding(20.dp)
                 ) {
                     Text(
@@ -178,14 +182,29 @@ fun LoginScreen(routeAction: RouteAction) {
                     )
                 }
 
-                Row(){
+                Row(verticalAlignment = Alignment.CenterVertically){
                     Button(
                         onClick = {
-                            if (id == default_id && password == default_password)
-                                routeAction.navTo(NAV_ROUTE.MAIN)
-                            else
-                                Toast.makeText(context, "아이디 또는 비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT)
-                                    .show()
+                            database.addListenerForSingleValueEvent(object: ValueEventListener{
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    for (column: DataSnapshot in snapshot.children) {
+                                        default_id = column.child("id").value.toString()
+                                        default_password = column.child("password").value.toString()
+                                        name = column.child("name").value.toString()
+                                        if (id == default_id && password == default_password){
+                                            Toast.makeText(context, "${name}님 환영합니다.", Toast.LENGTH_SHORT).show()
+                                            check = true
+                                            routeAction.navTo(NAV_ROUTE.MAIN)
+                                            break
+                                        }
+                                    }
+                                    if (!check) Toast.makeText(context, "아이디 또는 비밀번호가 틀렸습니다.", Toast.LENGTH_SHORT).show()
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    TODO("Not yet implemented")
+                                }
+                            })
                         },
                         modifier = Modifier.padding(8.dp)
                     ) {
@@ -204,13 +223,163 @@ fun LoginScreen(routeAction: RouteAction) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RegisterScreen(routeAction: RouteAction) {
+    var name by remember { mutableStateOf("")}
+    var id by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordCheck by remember { mutableStateOf("") }
+    var idCheck = false
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    
     Surface(Modifier.fillMaxSize()) {
         Box(Modifier.padding(8.dp), Alignment.Center) {
-            Button(onClick = { getNumber() }
-            ) {
-                Text(text = "회원가입")
+            Column(horizontalAlignment = Alignment.CenterHorizontally){
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "이름", 
+                        modifier = Modifier.padding(8.dp), 
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        fontSize = 15.sp)
+                    TextField(value = name, 
+                        onValueChange = {name = it},
+                        modifier = Modifier.padding(8.dp),
+                        label = { Text(text = "이름을 입력해주세요")},
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Color.Black
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text).copy(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = {
+                            defaultKeyboardAction(ImeAction.Next)
+                        })
+                    )                    
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "ID",
+                        modifier = Modifier.padding(8.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        fontSize = 15.sp)
+                    TextField(value = id,
+                        onValueChange = { id = it },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(0.5f),
+                        label = { Text(text = "ID를 입력해주세요")},
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Color.Black
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text).copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboardController?.hide()
+                        })
+                    )
+                    Button(onClick =
+                    {
+                        database.addListenerForSingleValueEvent(object: ValueEventListener{
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                if (snapshot.value != null){
+                                    Log.d("PKW", "onDataChange: ${snapshot.value}")
+                                    for (column: DataSnapshot in snapshot.children) {
+                                        if (column.child("id").value == id) {
+                                            idCheck = true
+                                            Toast.makeText(context, "이미 존재하는 아이디입니다.", Toast.LENGTH_SHORT).show()
+                                        }
+                                        else {
+                                            idCheck = false
+                                            Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                                else {
+                                    idCheck = true
+                                    Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                TODO("Not yet implemented")
+                            }
+                        })
+                    },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(text = "중복확인", )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "비밀번호",
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        modifier = Modifier.padding(8.dp),
+                        label = { Text(text = "비밀번호를 입력해주세요")},
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Color.Black
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = {
+                            defaultKeyboardAction(ImeAction.Next)
+                        })
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "비밀번호 확인",
+                        modifier = Modifier.padding(5.dp),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    TextField(
+                        value = passwordCheck,
+                        onValueChange = { passwordCheck = it },
+                        modifier = Modifier.padding(5.dp),
+                        label = {
+                            if (passwordCheck == password ) Text(text = "correct")
+                            else Text(text = "incorrect")
+                        },
+                        textStyle = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = Color.Black
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboardController?.hide()
+                        })
+                    )
+                }
+                Button(onClick = {
+                    if (idCheck && (passwordCheck == password) && name != "") {
+                        result["name"] = name
+                        result["id"] = id
+                        result["password"] = password
+                        getNumber()
+                        routeAction.navTo(NAV_ROUTE.LOGIN)
+                    }
+                    else Toast.makeText(context, "아직 확인되지 않은 부분이 있습니다.", Toast.LENGTH_SHORT).show()
+                }
+                ) {
+                    Text(text = "회원가입")
+                }
             }
         }
     }
@@ -225,12 +394,9 @@ fun getNumber() {
                 else i++
             }
 
-            result.put("number", i.toString())
-            result.put("name", "pkw")
-            result.put("id", "akakslslzz")
-            result.put("password", "zzqqwoo1310!")
+            number = i.toString()
+
             setDatabase()
-            Log.d("PKW", "general_num: $i")
         }
 
         override fun onCancelled(error: DatabaseError) {
@@ -240,8 +406,9 @@ fun getNumber() {
 }
 
 fun setDatabase() {
-    database.child(result["number"].toString()).child("value").setValue(result)
+    database.child(number).setValue(result)
     database.push()
+
 }
 
 @Composable
