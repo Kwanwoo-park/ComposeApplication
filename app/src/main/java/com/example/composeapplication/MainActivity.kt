@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.*
@@ -17,6 +19,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +29,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
+import androidx.navigation.NavigatorProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,8 +42,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.coroutineScope
 
 class MainActivity : ComponentActivity() {
+    var waitTime = 0L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -51,6 +60,21 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+//    override fun onBackPressed() {
+//        if (){
+//            if (System.currentTimeMillis() - waitTime >= 1500) {
+//                waitTime = System.currentTimeMillis()
+//                Toast.makeText(this, "뒤로가기 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+//            }
+//            else {
+//                finish()
+//            }
+//        }
+//        else {
+//            super.onBackPressed()
+//        }
+//    }
 }
 
 val database = FirebaseDatabase.getInstance().getReference("User")
@@ -69,6 +93,7 @@ class RouteAction(navHostController: NavHostController) {
     val navTo: (NAV_ROUTE) -> Unit = { route ->
         navHostController.navigate(route.routeName)
     }
+
 
     val goBack: () -> Unit = {
         navHostController.navigateUp()
@@ -109,7 +134,6 @@ fun NavigationGraph(startRoute: NAV_ROUTE = NAV_ROUTE.LOGIN) {
 fun MainScreen(routeAction: RouteAction) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(Modifier.padding(16.dp)) {
-
             NavButton(route = NAV_ROUTE.SETTING, routeAction = routeAction)
         }
     }
@@ -230,7 +254,7 @@ fun RegisterScreen(routeAction: RouteAction) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordCheck by remember { mutableStateOf("") }
-    var idCheck = false
+    var idCheck = true
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -242,7 +266,6 @@ fun RegisterScreen(routeAction: RouteAction) {
                     Text(text = "이름", 
                         modifier = Modifier.padding(8.dp), 
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
                         fontSize = 15.sp)
                     TextField(value = name, 
                         onValueChange = {name = it},
@@ -263,7 +286,6 @@ fun RegisterScreen(routeAction: RouteAction) {
                     Text(text = "ID",
                         modifier = Modifier.padding(8.dp),
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
                         fontSize = 15.sp)
                     TextField(value = id,
                         onValueChange = { id = it },
@@ -273,8 +295,7 @@ fun RegisterScreen(routeAction: RouteAction) {
                         label = { Text(text = "ID를 입력해주세요")},
                         textStyle = TextStyle(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = Color.Black
+                            fontSize = 15.sp
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text).copy(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = {
@@ -289,13 +310,15 @@ fun RegisterScreen(routeAction: RouteAction) {
                                     Log.d("PKW", "onDataChange: ${snapshot.value}")
                                     for (column: DataSnapshot in snapshot.children) {
                                         if (column.child("id").value == id) {
-                                            idCheck = true
-                                            Toast.makeText(context, "이미 존재하는 아이디입니다.", Toast.LENGTH_SHORT).show()
-                                        }
-                                        else {
                                             idCheck = false
-                                            Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "이미 존재하는 아이디입니다.", Toast.LENGTH_SHORT).show()
+                                            break
                                         }
+                                        else idCheck = true
+                                    }
+                                    if (idCheck) {
+                                        idCheck = true
+                                        Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                                 else {
@@ -319,8 +342,7 @@ fun RegisterScreen(routeAction: RouteAction) {
                         text = "비밀번호",
                         modifier = Modifier.padding(8.dp),
                         fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        fontWeight = FontWeight.Bold
                     )
                     TextField(
                         value = password,
@@ -344,8 +366,7 @@ fun RegisterScreen(routeAction: RouteAction) {
                         text = "비밀번호 확인",
                         modifier = Modifier.padding(5.dp),
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        fontWeight = FontWeight.Bold
                     )
                     TextField(
                         value = passwordCheck,
@@ -368,12 +389,12 @@ fun RegisterScreen(routeAction: RouteAction) {
                     )
                 }
                 Button(onClick = {
-                    if (idCheck && (passwordCheck == password) && name != "") {
+                    if (id != "" && idCheck && (passwordCheck == password) && name != "") {
                         result["name"] = name
                         result["id"] = id
                         result["password"] = password
                         getNumber()
-                        routeAction.navTo(NAV_ROUTE.LOGIN)
+                        routeAction.goBack()
                     }
                     else Toast.makeText(context, "아직 확인되지 않은 부분이 있습니다.", Toast.LENGTH_SHORT).show()
                 }
@@ -431,13 +452,16 @@ fun UserProfileScreen(routeAction: RouteAction) {
 fun SettingScreen(routeAction: RouteAction) {
     Surface(Modifier.fillMaxSize()) {
         Box(Modifier.padding(8.dp), Alignment.Center) {
-            Text(text = "설정 화면", style = TextStyle(Color.White, 22.sp, FontWeight.Medium))
-            Button(onClick = routeAction.goBack,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .offset(y = 100.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(8.dp)
             ) {
-                Text(text = "뒤로가기")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+
+                }
             }
         }
     }
