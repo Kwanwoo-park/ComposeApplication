@@ -1,5 +1,6 @@
 package com.example.composeapplication
 
+import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -28,4 +29,19 @@ fun setDatabase() {
     database.child(number).setValue(result)
     database.push()
 
+}
+
+fun createAccount(email: String, password: String) {
+    if (email.isNotEmpty() && password.isNotEmpty()) {
+        auth?.createUserWithEmailAndPassword(email, password)?.
+                addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        getNumber()
+                    }
+                }
+    }
+}
+
+fun logout() {
+    auth?.signOut()
 }

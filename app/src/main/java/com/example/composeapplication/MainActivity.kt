@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.composeapplication.navigation.NavigationGraph
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : ComponentActivity() {
     var waitTime = 0L
@@ -46,6 +49,7 @@ class MainActivity : ComponentActivity() {
 }
 
 val database = FirebaseDatabase.getInstance().getReference("User")
+var auth: FirebaseAuth? = Firebase.auth
 var result = mutableMapOf<String, String>()
 var number = ""
 

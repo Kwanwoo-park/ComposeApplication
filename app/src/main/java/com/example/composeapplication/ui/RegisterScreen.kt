@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.composeapplication.createAccount
 import com.example.composeapplication.navigation.RouteAction
 import com.example.composeapplication.database
 import com.example.composeapplication.getNumber
@@ -35,7 +36,7 @@ import com.google.firebase.database.ValueEventListener
 @Composable
 fun RegisterScreen(routeAction: RouteAction) {
     var name by remember { mutableStateOf("") }
-    var id by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordCheck by remember { mutableStateOf("") }
     var idCheck = true
@@ -71,8 +72,8 @@ fun RegisterScreen(routeAction: RouteAction) {
                         modifier = Modifier.padding(8.dp),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp)
-                    TextField(value = id,
-                        onValueChange = { id = it },
+                    TextField(value = email,
+                        onValueChange = { email = it },
                         modifier = Modifier
                             .padding(8.dp)
                             .fillMaxWidth(0.5f),
@@ -93,7 +94,7 @@ fun RegisterScreen(routeAction: RouteAction) {
                                 if (snapshot.value != null){
                                     Log.d("PKW", "onDataChange: ${snapshot.value}")
                                     for (column: DataSnapshot in snapshot.children) {
-                                        if (column.child("id").value == id) {
+                                        if (column.child("id").value == email) {
                                             idCheck = false
                                             Toast.makeText(context, "이미 존재하는 아이디입니다.", Toast.LENGTH_SHORT).show()
                                             break
@@ -173,11 +174,11 @@ fun RegisterScreen(routeAction: RouteAction) {
                     )
                 }
                 Button(onClick = {
-                    if (id != "" && idCheck && (passwordCheck == password) && name != "") {
+                    if (email != "" && idCheck && (passwordCheck == password) && name != "") {
                         result["name"] = name
-                        result["id"] = id
+                        result["email"] = email
                         result["password"] = password
-                        getNumber()
+                        createAccount(email, password)
                         routeAction.goBack()
                     }
                     else Toast.makeText(context, "아직 확인되지 않은 부분이 있습니다.", Toast.LENGTH_SHORT).show()
