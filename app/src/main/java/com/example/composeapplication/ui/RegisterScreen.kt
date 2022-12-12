@@ -94,7 +94,7 @@ fun RegisterScreen(routeAction: RouteAction) {
                                 if (snapshot.value != null){
                                     Log.d("PKW", "onDataChange: ${snapshot.value}")
                                     for (column: DataSnapshot in snapshot.children) {
-                                        if (column.child("id").value == email) {
+                                        if (column.child("email").value == email) {
                                             idCheck = false
                                             Toast.makeText(context, "이미 존재하는 아이디입니다.", Toast.LENGTH_SHORT).show()
                                             break

@@ -1,5 +1,6 @@
 package com.example.composeapplication
 
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,8 +36,11 @@ fun createAccount(email: String, password: String) {
     if (email.isNotEmpty() && password.isNotEmpty()) {
         auth?.createUserWithEmailAndPassword(email, password)?.
                 addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        getNumber()
+                    if (!task.exception?.message.isNullOrEmpty()) {
+                        Log.d("pkw", "createAccount: ${task.exception?.message}")
+                    }
+                    else {
+                       getNumber()
                     }
                 }
     }

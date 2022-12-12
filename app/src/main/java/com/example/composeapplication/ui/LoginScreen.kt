@@ -103,7 +103,7 @@ fun LoginScreen(routeAction: RouteAction) {
                             database.addListenerForSingleValueEvent(object: ValueEventListener {
                                 override fun onDataChange(snapshot: DataSnapshot) {
                                     for (column: DataSnapshot in snapshot.children) {
-                                        default_id = column.child("id").value.toString()
+                                        default_id = column.child("email").value.toString()
                                         default_password = column.child("password").value.toString()
                                         name = column.child("name").value.toString()
                                         if (id == default_id && password == default_password){
