@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "989322115181",
+    "firebase_url": "https://composeapplication-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "composeapplication",
+    "storage_bucket": "composeapplication.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989322115181:android:45341f93a9a42499962764",
+        "android_client_info": {
+          "package_name": "com.example.composeapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "989322115181-apijjivftatg33er1fahc56bioejj3md.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRZHkGW4DrnxJ0coi16QAMV4Gs5UFUkF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "989322115181-apijjivftatg33er1fahc56bioejj3md.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
