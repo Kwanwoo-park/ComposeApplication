@@ -10,7 +10,7 @@ data class MapItem(
 
 fun getMapItemList() = listOf(
     MapItem(
-        latLng = LatLng(37.740118399999744, 127.04342009999966),
+        latLng = LatLng(37.740118399999, 127.04342009999966),
         title = "스타벅스 의정부공원점",
         image = "https://ldb-phinf.pstatic.net/20200825_200/1598301949474sBbkY_JPEG/3509_20171121080426_cnkfi.jpg"
     ),
