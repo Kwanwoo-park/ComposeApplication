@@ -86,6 +86,7 @@ class RegisterActivity: ComponentActivity() {
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        var texts = "아이디를 입력해주세요"
                         Text(text = "ID",
                             modifier = Modifier.padding(8.dp),
                             fontWeight = FontWeight.Bold,
@@ -95,7 +96,11 @@ class RegisterActivity: ComponentActivity() {
                             modifier = Modifier
                                 .padding(8.dp)
                                 .fillMaxWidth(0.5f),
-                            label = { Text(text = "ID를 입력해주세요") },
+                            label = {
+                                    if (email.length !in 8..12 && email.isNotEmpty())
+                                        texts = "아이디를 8자에서 12사이로 만들어주세요"
+                                    Text(texts)
+                            },
                             textStyle = TextStyle(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp
@@ -121,18 +126,12 @@ class RegisterActivity: ComponentActivity() {
                                         }
                                         if (idCheck) {
                                             idCheck = true
-                                            if (email.length in 8..16)
-                                                Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
-                                            else
-                                                Toast.makeText(context, "8자에서 16자 사이로 만들어주세요.", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                     else {
                                         idCheck = true
-                                        if (email.length in 8..16)
-                                            Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
-                                        else
-                                            Toast.makeText(context, "8자에서 16자 사이로 만들어주세요.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "사용 가능한 아이디입니다.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
 

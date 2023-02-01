@@ -10,18 +10,18 @@ data class MapItem(
 
 fun getMapItemList() = listOf(
     MapItem(
-        latLng = LatLng(37.740118399999, 127.04342009999966),
-        title = "스타벅스 의정부공원점",
-        image = "https://ldb-phinf.pstatic.net/20200825_200/1598301949474sBbkY_JPEG/3509_20171121080426_cnkfi.jpg"
+        latLng = LatLng(37.752146122127634, 126.7657990497292),
+        title = "스타벅스 금릉역점",
+        image = "https://firebasestorage.googleapis.com/v0/b/composeapplication.appspot.com/o/starbucks%2F%E1%84%83%E1%85%A1%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%85%E1%85%A9%E1%84%83%E1%85%B3.jpeg?alt=media&token=a55102ca-e6d5-4cc6-a17a-13e5c0ae50f6"
     ),
     MapItem(
-        latLng = LatLng(37.73786099999975, 127.04186979999947),
-        title = "스타벅스 신세계의정부",
-        image = "https://ldb-phinf.pstatic.net/20200825_242/1598302003990GfJlO_JPEG/9698_20180615072632_2qg34.jpg"
+        latLng = LatLng(37.76392024854556, 126.77427368046001),
+        title = "스타벅스 금촌역점",
+        image = "https://firebasestorage.googleapis.com/v0/b/composeapplication.appspot.com/o/starbucks%2Foutput_4188444110.jpg?alt=media&token=0046d275-6cca-4831-9161-db34b17975dd"
     ),
     MapItem(
-        latLng = LatLng(37.73305020000005, 127.03457659999995),
-        title = "스타벅스 의정부예술의전당DT점",
-        image = "https://ldb-phinf.pstatic.net/20210804_47/1628023521693AOigS_JPEG/3571_20210803091352_qzsc3.jpg"
+        latLng = LatLng(37.712261419711304, 126.75967001205711),
+        title = "스타벅스 야당역",
+        image = "https://img.seoul.co.kr//img/upload/2020/08/20/SSI_20200820003036.jpg"
     ),
 )
