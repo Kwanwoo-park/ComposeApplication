@@ -22,6 +22,6 @@ fun getMapItemList() = listOf(
     MapItem(
         latLng = LatLng(37.712261419711304, 126.75967001205711),
         title = "스타벅스 야당역",
-        image = "https://img.seoul.co.kr//img/upload/2020/08/20/SSI_20200820003036.jpg"
+        image = "https://firebasestorage.googleapis.com/v0/b/composeapplication.appspot.com/o/starbucks%2FSSI_20200820003036_O2.jpg?alt=media&token=c795917d-edf7-45e9-a9ac-b0201c6c0c60"
     ),
 )
