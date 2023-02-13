@@ -3,7 +3,10 @@ package com.example.composeapplication.ui.login
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.Editor
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composeapplication.database
@@ -39,6 +43,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 class LoginActivity: ComponentActivity() {
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
+
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("pkw", "openActivityResultLauncher: sign in success")
@@ -48,13 +55,9 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
-    companion object {
-        const val REQUEST_CODE = 123
-        const val RESULT_CODE = 456
-    }
-
     override fun onCreate(savedInstanceState: Bundle?, ) {
         super.onCreate(savedInstanceState)
+
         setContent {
             ComposeApplicationTheme {
                 Surface(
@@ -67,6 +70,35 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
+    private fun checkSharePreference() {
+        val test_id = sharedPreferences.getString("id", "")
+        val test_password = sharedPreferences.getString("password", "")
+        Log.d("pkw", "checkSharePreference: $test_id, $test_password")
+        if (test_id != "" && test_password != "") {
+            database.addListenerForSingleValueEvent(object: ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (column: DataSnapshot in snapshot.children) {
+                        val num = column.key
+                        val id = column.child("email").value.toString()
+                        val password = column.child("password").value.toString()
+
+                        if (id == test_id && password == test_password) {
+                            intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            intent.putExtra("user_num", num)
+                            startActivity(intent)
+                            finish()
+                            break
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
+        }
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun LoginScreen() {
@@ -76,13 +108,18 @@ class LoginActivity: ComponentActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         var check = false
 
+        var name = ""
         var default_id = ""
         var default_password = ""
-        var name = ""
-        var login = ""
+        var autoLogin by remember { mutableStateOf(false) }
 
         var id by remember { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        editor = sharedPreferences.edit()
+
+        checkSharePreference()
 
         Surface(Modifier.fillMaxSize()){
             Box(Modifier.padding(8.dp), Alignment.Center){
@@ -148,6 +185,20 @@ class LoginActivity: ComponentActivity() {
                                             default_password = column.child("password").value.toString()
                                             name = column.child("name").value.toString()
                                             if (id == default_id && password == default_password){
+                                                if (autoLogin) {
+                                                    editor.putBoolean("autoLogin", autoLogin)
+                                                    editor.apply()
+                                                    editor.putString("id", id)
+                                                    editor.putString("password", password)
+                                                    editor.commit()
+                                                }
+                                                else {
+                                                    editor.putBoolean("auto_login", autoLogin)
+                                                    editor.apply()
+                                                    editor.putString("id", "")
+                                                    editor.putString("password", "")
+                                                    editor.commit()
+                                                }
                                                 Toast.makeText(context, "${name}님 환영합니다.", Toast.LENGTH_SHORT).show()
                                                 check = true
                                                 intent = Intent(context, MainActivity::class.java)
@@ -181,8 +232,21 @@ class LoginActivity: ComponentActivity() {
                             Text(text = "회원가입")
                         }
                     }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "자동로그인")
+                        Checkbox(checked = autoLogin, onCheckedChange = {autoLogin = it })
+                    }
                 }
             }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun LoginPreview() {
+        ComposeApplicationTheme {
+            LoginScreen()
         }
     }
 }
