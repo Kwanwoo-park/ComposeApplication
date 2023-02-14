@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composeapplication.database
+import com.example.composeapplication.ui.intro.IntroActivity
 import com.example.composeapplication.ui.main.MainActivity
 import com.example.composeapplication.ui.register.RegisterActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
@@ -42,10 +43,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
-class LoginActivity: ComponentActivity() {
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
 
+lateinit var sharedPreferences: SharedPreferences
+lateinit var editor: SharedPreferences.Editor
+class LoginActivity: ComponentActivity() {
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("pkw", "openActivityResultLauncher: sign in success")
@@ -55,7 +56,7 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
@@ -67,35 +68,6 @@ class LoginActivity: ComponentActivity() {
                     LoginScreen()
                 }
             }
-        }
-    }
-
-    private fun checkSharePreference() {
-        val test_id = sharedPreferences.getString("id", "")
-        val test_password = sharedPreferences.getString("password", "")
-        Log.d("pkw", "checkSharePreference: $test_id, $test_password")
-        if (test_id != "" && test_password != "") {
-            database.addListenerForSingleValueEvent(object: ValueEventListener{
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (column: DataSnapshot in snapshot.children) {
-                        val num = column.key
-                        val id = column.child("email").value.toString()
-                        val password = column.child("password").value.toString()
-
-                        if (id == test_id && password == test_password) {
-                            intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            intent.putExtra("user_num", num)
-                            startActivity(intent)
-                            finish()
-                            break
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
         }
     }
 
@@ -116,10 +88,6 @@ class LoginActivity: ComponentActivity() {
         var id by remember { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        editor = sharedPreferences.edit()
-
-        checkSharePreference()
 
         Surface(Modifier.fillMaxSize()){
             Box(Modifier.padding(8.dp), Alignment.Center){
@@ -239,14 +207,6 @@ class LoginActivity: ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    @Preview
-    @Composable
-    fun LoginPreview() {
-        ComposeApplicationTheme {
-            LoginScreen()
         }
     }
 }
