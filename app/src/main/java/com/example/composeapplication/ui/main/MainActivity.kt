@@ -1,14 +1,10 @@
 package com.example.composeapplication.ui.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composeapplication.ui.drawer.*
-import com.example.composeapplication.ui.login.LogoutActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
 import kotlinx.coroutines.launch
 
@@ -37,15 +32,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        if (System.currentTimeMillis() - waitTime >= 2000) {
-            waitTime = System.currentTimeMillis()
-            Toast.makeText(this, "뒤로가기 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-        }
-        else{
-            finish()
-        }
-    }
+//    override fun onBackPressed() {
+//        if (System.currentTimeMillis() - waitTime >= 2000) {
+//            waitTime = System.currentTimeMillis()
+//            Toast.makeText(this, "뒤로가기 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+//        }
+//        else{
+//            finish()
+//        }
+//    }
 
     @Composable
     fun MainScreen() {

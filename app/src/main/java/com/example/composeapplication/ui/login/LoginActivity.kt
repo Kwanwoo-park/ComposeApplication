@@ -4,15 +4,12 @@ package com.example.composeapplication.ui.login
 import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.SharedPreferences.Editor
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,11 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composeapplication.database
-import com.example.composeapplication.ui.intro.IntroActivity
 import com.example.composeapplication.ui.main.MainActivity
 import com.example.composeapplication.ui.register.RegisterActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
@@ -46,6 +41,8 @@ import com.google.firebase.database.ValueEventListener
 
 lateinit var sharedPreferences: SharedPreferences
 lateinit var editor: SharedPreferences.Editor
+lateinit var intent: Intent
+
 class LoginActivity: ComponentActivity() {
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -74,8 +71,6 @@ class LoginActivity: ComponentActivity() {
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun LoginScreen() {
-        lateinit var intent: Intent
-
         val context = LocalContext.current
         val keyboardController = LocalSoftwareKeyboardController.current
         var check = false
