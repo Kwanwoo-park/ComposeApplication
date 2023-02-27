@@ -35,8 +35,6 @@
         <activity android:name=".ui.login.LoginActivity"/>
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.register.RegisterActivity" />
-        <activity android:name=".ui.setting.SettingActivity" />
-        <activity android:name=".ui.userprofile.UserProfileActivity" />
         <activity android:name=".ui.login.LogoutActivity" />
     </application>
 

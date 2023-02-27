@@ -54,7 +54,7 @@ class IntroActivity: ComponentActivity() {
         }
     }
 
-    fun checkSharePreference() {
+    private fun checkSharePreference() {
         val test_id = sharedPreferences.getString("id", "")
         val test_password = sharedPreferences.getString("password", "")
         Log.d("pkw", "checkSharePreference: $test_id, $test_password")
@@ -63,12 +63,14 @@ class IntroActivity: ComponentActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (column: DataSnapshot in snapshot.children) {
                         val num = column.key
+                        val name = column.child("name").value.toString()
                         val id = column.child("email").value.toString()
                         val password = column.child("password").value.toString()
 
                         if (id == test_id && password == test_password) {
                             intent = Intent(this@IntroActivity, MainActivity::class.java)
                             intent.putExtra("user_num", num)
+                            Toast.makeText(this@IntroActivity, "${name}님 환영합니다.", Toast.LENGTH_SHORT).show()
                             startActivity(intent)
                             finish()
                             break
