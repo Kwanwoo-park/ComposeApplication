@@ -33,10 +33,10 @@ class LogoutActivity : ComponentActivity() {
     fun LogoutScreen() {
         Box(modifier = Modifier.fillMaxSize()) {
             Button(onClick = {
-                editor.apply()
-                editor.putString("id", "")
-                editor.putString("password", "")
-                editor.commit()
+//                editor.apply()
+//                editor.putString("id", "")
+//                editor.putString("password", "")
+//                editor.commit()
 
                 intent = Intent(this@LogoutActivity, LoginActivity::class.java)
                 startActivity(intent)

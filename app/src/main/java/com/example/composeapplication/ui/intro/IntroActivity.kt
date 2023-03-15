@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.example.composeapplication.database
 import com.example.composeapplication.ui.login.LoginActivity
-import com.example.composeapplication.ui.login.editor
-import com.example.composeapplication.ui.login.sharedPreferences
+//import com.example.composeapplication.ui.login.editor
+//import com.example.composeapplication.ui.login.sharedPreferences
 import com.example.composeapplication.ui.main.MainActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
 import com.google.firebase.database.DataSnapshot
@@ -53,41 +53,42 @@ class IntroActivity: ComponentActivity() {
         }
     }
 
-    private fun checkSharePreference() {
-        val test_id = sharedPreferences.getString("id", "")
-        val test_password = sharedPreferences.getString("password", "")
-        Log.d("pkw", "checkSharePreference: $test_id, $test_password")
-        if (test_id != "" && test_password != "") {
-            database.addListenerForSingleValueEvent(object: ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (column: DataSnapshot in snapshot.children) {
-                        val num = column.key
-                        val name = column.child("name").value.toString()
-                        val id = column.child("email").value.toString()
-                        val password = column.child("password").value.toString()
-
-                        if (id == test_id && password == test_password) {
-                            intent = Intent(this@IntroActivity, MainActivity::class.java)
-                            intent.putExtra("user_num", num)
-                            Toast.makeText(this@IntroActivity, "${name}님 환영합니다.", Toast.LENGTH_SHORT).show()
-                            startActivity(intent)
-                            finish()
-                            break
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-        }
-        else {
-            intent = Intent(this@IntroActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-    }
+//    private fun checkSharePreference() {
+//        val test_id = sharedPreferences.getString("id", "")
+//        val test_password = sharedPreferences.getString("password", "")
+//        Log.d("pkw", "checkSharePreference: $test_id, $test_password")
+//        if (test_id != "" && test_password != "") {
+//            database.addListenerForSingleValueEvent(object: ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    for (column: DataSnapshot in snapshot.children) {
+//                        val num = column.key
+//                        val name = column.child("name").value.toString()
+//                        val id = column.child("email").value.toString()
+//                        val password = column.child("password").value.toString()
+//
+//                        if (id == test_id && password == test_password) {
+//                            intent = Intent(this@IntroActivity, MainActivity::class.java)
+//                            intent.putExtra("user_num", num)
+//                            intent.putExtra("user_name", name)
+//                            Toast.makeText(this@IntroActivity, "${name}님 환영합니다.", Toast.LENGTH_SHORT).show()
+//                            startActivity(intent)
+//                            finish()
+//                            break
+//                        }
+//                    }
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    TODO("Not yet implemented")
+//                }
+//            })
+//        }
+//        else {
+//            intent = Intent(this@IntroActivity, LoginActivity::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
+//    }
 
     private fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -159,10 +160,10 @@ class IntroActivity: ComponentActivity() {
         else{
             val context = LocalContext.current
 
-            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            editor = sharedPreferences.edit()
-
-            checkSharePreference()
+//            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+//            editor = sharedPreferences.edit()
+//
+//            checkSharePreference()
 
             Surface(
                 modifier = Modifier

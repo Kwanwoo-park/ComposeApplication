@@ -45,8 +45,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainScreen() {
         var num = intent.getStringExtra("user_num")
+        var name = intent.getStringExtra("user_name")
         Log.d("pkw", "MainScreen: $num")
-        
+
         val navController = rememberNavController()
         
         Surface(color = MaterialTheme.colors.background) {
@@ -81,14 +82,18 @@ class MainActivity : ComponentActivity() {
                         Home (
                             openDrawer = {
                                 openDrawer()
-                            }
+                            },
+                            num,
+                            name
                         )
                     }
                     composable(DrawerActivity.Account.route) {
                         Account (
                             openDrawer = {
                                 openDrawer()
-                            }
+                            },
+                            num,
+                            name
                         )
                     }
                     composable(DrawerActivity.Help.route) {

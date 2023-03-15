@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="baseBackground">#404040</color>
+    <color name="baseTextColor">#D8D8D8</color>
+    <color name="colorGoogleSignIn">#d34836</color>
+</resources>

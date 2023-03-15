@@ -20,13 +20,13 @@ import androidx.navigation.NavController
 import com.example.composeapplication.database
 import com.example.composeapplication.ui.login.LoginActivity
 import com.example.composeapplication.ui.login.LogoutActivity
-import com.example.composeapplication.ui.login.editor
-import com.example.composeapplication.ui.login.intent
+//import com.example.composeapplication.ui.login.editor
+//import com.example.composeapplication.ui.login.intent
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 @Composable
-fun Home(openDrawer: () -> Unit) {
+fun Home(openDrawer: () -> Unit, num: String?, name: String?) {
     Column(modifier = Modifier.fillMaxSize()) {
         Topbar(
             title = "Home",
@@ -38,13 +38,13 @@ fun Home(openDrawer: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Home Page content here.")
+            Text(text = "${name}님의 메인화면")
         }
     }
 }
 
 @Composable
-fun Account(openDrawer: () -> Unit) {
+fun Account(openDrawer: () -> Unit, num: String?, name: String?) {
     val snackbarState = remember { SnackbarHostState() }
     var coroutineScope = rememberCoroutineScope()
 
@@ -68,17 +68,17 @@ fun Account(openDrawer: () -> Unit) {
 
                 coroutineScope.launch {
                     val result = snackbarState.showSnackbar(
-                        "로그아웃하시면 앱이 종료됩니다.",
+                        "${name}님 \n로그아웃하시면 앱이 종료됩니다.",
                         "확인",
                         SnackbarDuration.Short
                     ).let {
                         when(it) {
                             SnackbarResult.Dismissed -> Log.d("pkw", "Account: Snackbar close")
                             SnackbarResult.ActionPerformed -> {
-                                editor.apply()
-                                editor.putString("id", "")
-                                editor.putString("password", "")
-                                editor.commit()
+//                                editor.apply()
+//                                editor.putString("id", "")
+//                                editor.putString("password", "")
+//                                editor.commit()
 
                                 exitProcess(0)
                             }
