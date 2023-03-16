@@ -34,44 +34,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    override fun onBackPressed() {
-//        if (System.currentTimeMillis() - waitTime >= 2000) {
-//            waitTime = System.currentTimeMillis()
-//            Toast.makeText(this, "뒤로가기 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
-//        }
-//        else{
-//            finish()
-//        }
-//    }
 
     @Composable
     fun MainScreen() {
         val navController = rememberNavController()
         
-        Surface(color = MaterialTheme.colors.background) {
-            val drawerState = rememberDrawerState(DrawerValue.Closed)
-            val scope = rememberCoroutineScope()
-            val openDrawer = {
-                scope.launch {
-                    drawerState.open()
-                }
-            }
-            
-            ModalDrawer(
-                drawerState = drawerState,
-                gesturesEnabled = drawerState.isOpen,
-                drawerContent = {
-                    Drawer(onDestinationClicked = {route ->  
-                        scope.launch { 
-                            drawerState.close()
-                        }
-                        navController.navigate(route) {
-                            popUpTo = navController.graph.getStartDestination()
-                            launchSingleTop = true
-                        }
-                    })
-                }
-            ) {
+        Scaffold(
+            bottomBar = { BottomNavigation(navController = navController)}
+        ) {
+            Box(modifier = Modifier.padding(it)) {
                 NavHost(
                     navController = navController,
                     startDestination = DrawerActivity.Home.route
@@ -81,22 +52,21 @@ class MainActivity : ComponentActivity() {
                             startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                             finish()
                         }
-                        Home(
-                            openDrawer = {
-                                openDrawer()
-                            }
-                        )
+                        Home()
+                    }
+                    composable(DrawerActivity.Search.route) {
+                        Search ()
+                    }
+                    composable(DrawerActivity.Gallery.route) {
+                        Gallery ()
+                    }
+                    composable(DrawerActivity.Favorite.route) {
+                        Favorite ()
                     }
                     composable(DrawerActivity.Account.route) {
                         Account (
-                            openDrawer = {
-                                openDrawer()
-                            },
                             navController = navController
                         )
-                    }
-                    composable(DrawerActivity.Help.route) {
-                        Help(navController = navController)
                     }
                 }
             }

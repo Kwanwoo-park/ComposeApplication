@@ -18,13 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
-fun Home(openDrawer: () -> Unit) {
+fun Home() {
     Column(modifier = Modifier.fillMaxSize()) {
-        Topbar(
-            title = "Home",
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -36,18 +31,50 @@ fun Home(openDrawer: () -> Unit) {
 }
 
 @Composable
-fun Account(openDrawer: () -> Unit, navController: NavController) {
-    val snackbarState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+fun Search() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Search")
+        }
+    }
+}
+
+@Composable
+fun Gallery() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Gallery")
+        }
+    }
+}
+
+@Composable
+fun Favorite() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Favorite")
+        }
+    }
+}
+
+@Composable
+fun Account(navController: NavController) {
 
     val auth = FirebaseAuth.getInstance()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Topbar(
-            title = "Account",
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -61,24 +88,6 @@ fun Account(openDrawer: () -> Unit, navController: NavController) {
             }) {
                 Text(text = "logout")
             }
-        }
-    }
-}
-
-@Composable
-fun Help(navController: NavController) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Topbar(
-            title = "Help",
-            buttonIcon = Icons.Filled.ArrowBack,
-            onButtonClicked = {navController.popBackStack()}
-        )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Help.", style = MaterialTheme.typography.h4)
         }
     }
 }
