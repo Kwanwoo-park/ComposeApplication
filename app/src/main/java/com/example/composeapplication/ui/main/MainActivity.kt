@@ -1,7 +1,7 @@
 package com.example.composeapplication.ui.main
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -12,11 +12,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composeapplication.ui.drawer.*
+import com.example.composeapplication.ui.login.LoginActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    var waitTime = 0L
+    val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,10 +46,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
-        var num = intent.getStringExtra("user_num")
-        var name = intent.getStringExtra("user_name")
-        Log.d("pkw", "MainScreen: $num")
-
         val navController = rememberNavController()
         
         Surface(color = MaterialTheme.colors.background) {
@@ -79,12 +77,14 @@ class MainActivity : ComponentActivity() {
                     startDestination = DrawerActivity.Home.route
                 ) {
                     composable(DrawerActivity.Home.route) {
-                        Home (
+                        if (auth.currentUser?.uid.isNullOrEmpty()){
+                            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                            finish()
+                        }
+                        Home(
                             openDrawer = {
                                 openDrawer()
-                            },
-                            num,
-                            name
+                            }
                         )
                     }
                     composable(DrawerActivity.Account.route) {
@@ -92,8 +92,7 @@ class MainActivity : ComponentActivity() {
                             openDrawer = {
                                 openDrawer()
                             },
-                            num,
-                            name
+                            navController = navController
                         )
                     }
                     composable(DrawerActivity.Help.route) {

@@ -74,12 +74,6 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        moveMainPage(auth?.currentUser)
-    }
-
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun LoginScreen() {
@@ -202,7 +196,7 @@ class LoginActivity: ComponentActivity() {
     }
 
     private fun emailLogin(id: String, password: String) {
-        if (id.isNullOrEmpty() || password.isNullOrEmpty()) {
+        if (id.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, getString(R.string.signout_fail_null), Toast.LENGTH_SHORT).show()
         }
         else {
@@ -231,5 +225,11 @@ class LoginActivity: ComponentActivity() {
                     Toast.makeText(this, task.exception!!.message, Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        moveMainPage(auth?.currentUser)
     }
 }
