@@ -26,7 +26,7 @@ fun ItemDetail() {
             .fillMaxWidth()
             .height(50.dp)) {
             Image(
-                painter = painterResource(id = 0),
+                painter = painterResource(id = R.mipmap.ic_launcher),
                 contentDescription = "user_profile",
                 modifier = Modifier
                     .width(35.dp)
@@ -61,7 +61,7 @@ fun ItemDetail() {
 
             Image(
                 painter = painterResource(id = R.drawable.ic_chat_black),
-                contentDescription = "chatting",
+                contentDescription = "comment",
                 modifier = Modifier
                     .width(35.dp)
                     .height(35.dp)

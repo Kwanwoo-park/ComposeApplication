@@ -44,6 +44,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlin.math.log
 
 class LoginActivity: ComponentActivity() {
     private var auth: FirebaseAuth? = null
