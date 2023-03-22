@@ -24,9 +24,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composeapplication.R
+import com.example.composeapplication.database
+import com.example.composeapplication.getNumber
+import com.example.composeapplication.result
 import com.example.composeapplication.ui.main.MainActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
 import com.google.android.gms.auth.api.Auth
@@ -37,15 +41,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class LoginActivity: ComponentActivity() {
     private var auth: FirebaseAuth? = null
     private val GOOGLE_LOGIN_CODE = -1
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        if (result.resultCode == GOOGLE_LOGIN_CODE) {
-            val results = Auth.GoogleSignInApi.getSignInResultFromIntent(result.data!!)
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultss: ActivityResult ->
+        if (resultss.resultCode == GOOGLE_LOGIN_CODE) {
+            val results = Auth.GoogleSignInApi.getSignInResultFromIntent(resultss.data!!)
             
             if (results!!.isSuccess) {
                 val account = results.signInAccount
@@ -131,6 +138,7 @@ class LoginActivity: ComponentActivity() {
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     ),
+                    visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password).copy(
                         imeAction = ImeAction.Done
                     ),
@@ -167,6 +175,9 @@ class LoginActivity: ComponentActivity() {
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, getString(R.string.signup_complete), Toast.LENGTH_SHORT).show()
+                    result["email"] = id
+                    result["password"] = password
+                    getNumber()
                     moveMainPage(auth?.currentUser)
                 }
                 else if (task.exception?.message.isNullOrEmpty()) {
@@ -210,6 +221,26 @@ class LoginActivity: ComponentActivity() {
         auth?.signInWithCredential(credential)
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    database.addListenerForSingleValueEvent(object: ValueEventListener{
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (column in snapshot.children) {
+                                var email = column.child("email").value.toString()
+
+                                if (email.contains("gmail")) break
+
+                                if (email != account.email.toString()) {
+                                    result["email"] = account.email.toString()
+                                    result["password"] = account.idToken.toString()
+                                    getNumber()
+                                    break
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            //
+                        }
+                    })
                     moveMainPage(auth?.currentUser)
                 }
             }

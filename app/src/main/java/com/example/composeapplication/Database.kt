@@ -1,13 +1,9 @@
 package com.example.composeapplication
 
-import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.ktx.Firebase
 
 val database = FirebaseDatabase.getInstance().getReference("User")
 var result = mutableMapOf<String, String>()
