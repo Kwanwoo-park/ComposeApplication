@@ -27,105 +27,103 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun GoogleMap() {
-            val list = getMapItemList()
-        val cameraPositionState = rememberCameraPositionState {
-            position = CameraPosition.fromLatLngZoom(list[0].latLng, 14f)
-        }
+    val list = getMapItemList()
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(list[0].latLng, 14f)
+    }
 
-        val uiSettings by remember {
-            mutableStateOf(
-                MapUiSettings(
-                    zoomControlsEnabled = false
-                )
+    val uiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(
+                zoomControlsEnabled = false
             )
-        }
+        )
+    }
 
-        val pagerState = rememberPagerState()
-        val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState()
+    val scope = rememberCoroutineScope()
 
-
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            GoogleMap(
-                cameraPositionState = cameraPositionState,
-                uiSettings = uiSettings
-            ) {
-                list.forEachIndexed { index, mapItem ->
-                    MarkerInfoWindow(
-                        state = MarkerState(position = mapItem.latLng),
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                            true
+    Box(modifier = Modifier.fillMaxSize()) {
+        GoogleMap(
+            cameraPositionState = cameraPositionState,
+            uiSettings = uiSettings
+        ) {
+            list.forEachIndexed { index, mapItem ->
+                MarkerInfoWindow(
+                    state = MarkerState(position = mapItem.latLng),
+                    onClick = {
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
                         }
-                    )
-                }
-            }
-
-            MapViewPager(
-                list = list,
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 10.dp, max = 200.dp)
-                    .align(Alignment.BottomCenter)
-            )
-
-            LaunchedEffect(pagerState) {
-                snapshotFlow { pagerState.currentPage }.collect { page ->
-                    cameraPositionState
-                        .move(CameraUpdateFactory.newLatLng(list[page].latLng))
-                }
+                        true
+                    }
+                )
             }
         }
 
-        Surface(modifier = Modifier.fillMaxSize()) {
-            var mapProperties by remember {
-                mutableStateOf(
-                    MapProperties(maxZoomPreference = 30f, minZoomPreference = 15f)
-                )
-            }
+        MapViewPager(
+            list = list,
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 10.dp, max = 200.dp)
+                .align(Alignment.BottomCenter)
+        )
 
-            var mapUiSettings by remember {
-                mutableStateOf(
-                    MapUiSettings(mapToolbarEnabled = true)
-                )
+        LaunchedEffect(pagerState) {
+            snapshotFlow { pagerState.currentPage }.collect { page ->
+                cameraPositionState
+                    .move(CameraUpdateFactory.newLatLng(list[page].latLng))
             }
+        }
+    }
 
-            val latLng = LatLng(37.75593943612764, 126.76820417030824)
-            val cameraPositionState = rememberCameraPositionState{
-                position = CameraPosition.fromLatLngZoom(latLng, 23f)
-            }
+    Surface(modifier = Modifier.fillMaxSize()) {
+        var mapProperties by remember {
+            mutableStateOf(
+                MapProperties(maxZoomPreference = 30f, minZoomPreference = 15f)
+            )
+        }
 
-            GoogleMap(
-                properties = mapProperties,
-                uiSettings = mapUiSettings,
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState
-            ) {
+        var mapUiSettings by remember {
+            mutableStateOf(
+                MapUiSettings(mapToolbarEnabled = true)
+            )
+        }
+
+        val latLng = LatLng(37.75593943612764, 126.76820417030824)
+        val cameraPositionState = rememberCameraPositionState{
+            position = CameraPosition.fromLatLngZoom(latLng, 23f)
+        }
+
+        GoogleMap(
+            properties = mapProperties,
+            uiSettings = mapUiSettings,
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState
+        ) {
 //                Marker(
 //                    state = MarkerState(position = latLng),
 //                    title = "집",
 //                    snippet = "Home"
 //                )
-                MarkerInfoWindowContent(
-                    state = MarkerState(position = latLng)
-                ) {marker ->
-                    Button(
-                        contentPadding = PaddingValues(10.dp),
-                        onClick = {},
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color.Yellow
-                        )
-                    ) {
-                        Column {
-                            Image(painter = painterResource(id = R.drawable.ic_launcher_background), contentDescription = null)
-                            Text(text = marker.title ?: "집", color = Color.Blue)
-                        }
+            MarkerInfoWindowContent(
+                state = MarkerState(position = latLng)
+            ) {marker ->
+                Button(
+                    contentPadding = PaddingValues(10.dp),
+                    onClick = {},
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Yellow
+                    )
+                ) {
+                    Column {
+                        Image(painter = painterResource(id = R.drawable.ic_launcher_background), contentDescription = null)
+                        Text(text = marker.title ?: "집", color = Color.Blue)
                     }
                 }
             }
         }
+    }
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -28,8 +29,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composeapplication.R
-import com.example.composeapplication.database
-import com.example.composeapplication.getNumber
+import com.example.composeapplication.databaseUser
+import com.example.composeapplication.getNumberUser
 import com.example.composeapplication.result
 import com.example.composeapplication.ui.main.MainActivity
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
@@ -44,7 +45,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import kotlin.math.log
 
 class LoginActivity: ComponentActivity() {
     private var auth: FirebaseAuth? = null
@@ -100,7 +100,7 @@ class LoginActivity: ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(R.color.baseBackground))
+                .background(colorResource(id = R.color.baseBackground))
         ) {
             Column(
                 modifier = Modifier.padding(20.dp, 0.dp, 20.dp, 0.dp),
@@ -135,7 +135,7 @@ class LoginActivity: ComponentActivity() {
                         .padding(20.dp, 0.dp, 20.dp, 10.dp)
                         .fillMaxWidth(),
                     textStyle = TextStyle(
-                        color = Color(R.color.baseTextColor),
+                        color = colorResource(id = R.color.baseTextColor),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     ),
@@ -178,7 +178,7 @@ class LoginActivity: ComponentActivity() {
                     Toast.makeText(this, getString(R.string.signup_complete), Toast.LENGTH_SHORT).show()
                     result["email"] = id
                     result["password"] = password
-                    getNumber()
+                    getNumberUser()
                     moveMainPage(auth?.currentUser)
                 }
                 else if (task.exception?.message.isNullOrEmpty()) {
@@ -222,7 +222,7 @@ class LoginActivity: ComponentActivity() {
         auth?.signInWithCredential(credential)
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    database.addListenerForSingleValueEvent(object: ValueEventListener{
+                    databaseUser.addListenerForSingleValueEvent(object: ValueEventListener{
                         override fun onDataChange(snapshot: DataSnapshot) {
                             for (column in snapshot.children) {
                                 var email = column.child("email").value.toString()
@@ -232,7 +232,7 @@ class LoginActivity: ComponentActivity() {
                                 if (email != account.email.toString()) {
                                     result["email"] = account.email.toString()
                                     result["password"] = account.idToken.toString()
-                                    getNumber()
+                                    getNumberUser()
                                     break
                                 }
                             }
