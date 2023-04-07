@@ -52,52 +52,6 @@ class IntroActivity: ComponentActivity() {
         }
     }
 
-    private fun isNetworkAvailabe(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val nw = connectivityManager.activeNetwork ?: return false
-            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
-
-            return when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
-                else -> false
-            }
-        }
-        else {
-            return connectivityManager.activeNetworkInfo?.isConnected ?: false
-        }
-    }
-
-    private fun moveMainPage() {
-        databaseImage.addValueEventListener(object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (contentDTOs.size != 0) contentDTOs.clear()
-
-                for (column in snapshot.children) {
-                    var contentDTO = ContentDTO()
-                    contentDTO.explain = column.child("explain").value.toString()
-                    contentDTO.favoriteCount = column.child("favoriteCount").value.toString().toInt()
-                    contentDTO.imageUrl = column.child("imageUrl").value.toString()
-                    contentDTO.timestamp = column.child("timestamp").value.toString().toLong()
-                    contentDTO.uid = column.child("uid").value.toString()
-                    contentDTO.userId = column.child("userId").value.toString()
-                    Log.d("pkw", "onDataChange: $contentDTO")
-                    contentDTOs.add(contentDTO)
-                }
-                startActivity(Intent(this@IntroActivity, LoginActivity::class.java))
-                finish()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-
-            }
-        })
-    }
-
     @Composable
     fun IntroScreen() {
         contentDTOs = mutableListOf()
@@ -106,6 +60,7 @@ class IntroActivity: ComponentActivity() {
         val snackbarState = remember { SnackbarHostState() }
         val coroutineScope = rememberCoroutineScope()
 
+        //인터넷 연결 확인 함수 호출하고 그에 따른 다른 화면 출력
         if (!isNetworkAvailabe(this)) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -118,6 +73,7 @@ class IntroActivity: ComponentActivity() {
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
+                    //인터넷 연결이 안 되었을 때 앱을 종료하는 버튼
                     Button(onClick = {
                         if (snackbarState.currentSnackbarData != null) {
                             snackbarState.currentSnackbarData?.dismiss()
@@ -175,5 +131,53 @@ class IntroActivity: ComponentActivity() {
                 }
             }
         }
+    }
+
+    //인터넷 연결이 잘 되어있는지 확인하는 함수
+    private fun isNetworkAvailabe(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val nw = connectivityManager.activeNetwork ?: return false
+            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+
+            return when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+                else -> false
+            }
+        }
+        else {
+            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+        }
+    }
+
+    //메인 화면으로 이동하기 전에 서버에 올려져 있는 이미지들과 그에 관련된 각종 정보들 가져오는 코드와 다 가져오면 메인 화면으로 이동
+    private fun moveMainPage() {
+        databaseImage.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (contentDTOs.size != 0) contentDTOs.clear()
+
+                for (column in snapshot.children) {
+                    var contentDTO = ContentDTO()
+                    contentDTO.explain = column.child("explain").value.toString()
+                    contentDTO.favoriteCount = column.child("favoriteCount").value.toString().toInt()
+                    contentDTO.imageUrl = column.child("imageUrl").value.toString()
+                    contentDTO.timestamp = column.child("timestamp").value.toString().toLong()
+                    contentDTO.uid = column.child("uid").value.toString()
+                    contentDTO.userId = column.child("userId").value.toString()
+                    Log.d("pkw", "onDataChange: $contentDTO")
+                    contentDTOs.add(contentDTO)
+                }
+                startActivity(Intent(this@IntroActivity, LoginActivity::class.java))
+                finish()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
     }
 }

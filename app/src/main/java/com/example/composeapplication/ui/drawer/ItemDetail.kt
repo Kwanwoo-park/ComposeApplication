@@ -48,6 +48,7 @@ fun ItemDetail(contentDTO: ContentDTO) {
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
+                //유저 프로필 이미지 출력하는 위젯 -> 아직은 프로필 기능 X
                 Image(
                     painter = painterResource(id = R.drawable.ic_account),
                     contentDescription = "user_profile",
@@ -56,12 +57,14 @@ fun ItemDetail(contentDTO: ContentDTO) {
                         .height(35.dp)
                         .padding(7.5.dp)
                 )
+                //유저 아이디 출력
                 Text(
                     text = contentDTO.userId.toString()
                 )
             }
 
 
+            //서버에 올려져 있는 이미지 url 가져와서 Bitmap으로 변환
             Glide.with(context)
                 .asBitmap()
                 .load(contentDTO.imageUrl)
@@ -77,6 +80,7 @@ fun ItemDetail(contentDTO: ContentDTO) {
                     }
                 })
 
+            //Bitmap 변환이 잘 되면 이미지 출력하고 안 되거나 null이면 기본 이미지 출력
             bitmap.value?.asImageBitmap()?.let { fetchedBitmap ->
                 Image(
                     bitmap = fetchedBitmap,
@@ -101,6 +105,7 @@ fun ItemDetail(contentDTO: ContentDTO) {
                     .height(50.dp)
                     .padding(8.dp, 0.dp, 0.dp, 0.dp)
             ) {
+                //각각 좋아요 기능과 댓글 기능 -> 아직은 개발 X
                 Image(
                     painter = painterResource(id = R.drawable.ic_favorite),
                     contentDescription = "heart",
@@ -121,11 +126,13 @@ fun ItemDetail(contentDTO: ContentDTO) {
                 )
             }
 
+            //현재 좋아요가 몇 개 받았는지 출력하는 코드
             Text(
                 text = "좋아요 ${contentDTO.favoriteCount}개",
                 modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
             )
 
+            //이미지와 함께 올린 설명을 출력하는 코드
             Text(
                 text = contentDTO.explain.toString(),
                 modifier = Modifier

@@ -84,7 +84,7 @@ fun Gallery(num: String, navController: NavController) {
             .verticalScroll(rememberScrollState())
     ) {
            Column(horizontalAlignment = Alignment.CenterHorizontally){
-               //uri가 null이면 이미지를 생성 안 하고 null이 아니면 가져온 이미지를 나타내는 코드
+               //갤러리에서 가져온 url을 Bitmap으로 변환하는 코드
                Glide.with(context)
                    .asBitmap()
                    .load(photoUri)
@@ -100,6 +100,7 @@ fun Gallery(num: String, navController: NavController) {
                        }
                    })
 
+               //변환한 bitmap이 null이나 잘 되지 않았으면 기본 이미지 출력 아니면 서버에 있는 이미지 출력
                bitmap.value?.asImageBitmap()?.let {fetchedBitmap ->
                    Image(
                        bitmap = fetchedBitmap,

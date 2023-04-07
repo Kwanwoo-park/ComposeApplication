@@ -24,6 +24,7 @@ fun Home(num: String, contentDTOs: MutableList<ContentDTO>) {
 
     Log.d("pkw", "ContentDTO: ${contentDTOs.size}")
 
+    //Xml에 Recyclerview 같은 역활을 하는 위젯 사용하는 코드
     LazyColumn(modifier = Modifier
         .fillMaxSize()
         .background(color = colorResource(id = R.color.baseBackground))) {
