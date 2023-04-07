@@ -4,6 +4,7 @@ package com.example.composeapplication.ui.screens
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.drawable.Drawable
 import androidx.activity.result.contract.ActivityResultContracts
 import android.net.Uri
 import android.os.Build
@@ -11,9 +12,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -25,10 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.composeapplication.R
 import com.example.composeapplication.getNumberImage
 import com.example.composeapplication.model.ContentDTO
@@ -44,62 +48,84 @@ lateinit var auth: FirebaseAuth
 fun Gallery(num: String, navController: NavController) {
     Log.d("pkw", "Gallery: ${num}")
 
-    storage = FirebaseStorage.getInstance()
-    auth = FirebaseAuth.getInstance()
+    storage = FirebaseStorage.getInstance() //FirebaseStorage 연결
+    auth = FirebaseAuth.getInstance() //Firebase Authentication 연결
 
     val context = LocalContext.current
-    
+
+    //uri, 가져온 uri값을 이미지로 변환한 값, 작성글 저장하는 변수
     var comment by remember { mutableStateOf("") }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var bitmap: MutableState<Bitmap?> =  remember { mutableStateOf(null) }
 
+    //갤러리 열어서 image uri와 uri를 bitmap으로 변환하는 과정
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { results ->
             if (results.resultCode == -1) {
                 photoUri = results.data?.data!!
                 Log.d("pkw", "Gallery: $photoUri")
-
-                bitmap = photoUri.let {
-                    if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                    }
-                    else {
-                        val source = ImageDecoder.createSource(context.contentResolver, it!!)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-                }
             }
         }
     )
 
     LaunchedEffect(Unit) {
+        //갤러리 열기
         val photoIntent = Intent(Intent.ACTION_PICK)
         photoIntent.type = "image/*"
         launcher.launch(photoIntent)
+        Log.d("pkw", "Gallery: $photoUri")
     }
     
     Box(
         Modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.baseBackground))) {
-        Row {
-            if (photoUri != null){
-                Image(
-                    bitmap = bitmap!!.asImageBitmap(),
-                    contentDescription = "image",
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp)
-                        .padding(8.dp)
-                        .clickable {
-                            val photoIntent = Intent(Intent.ACTION_PICK)
-                            photoIntent.type = "image/*"
-                            launcher.launch(photoIntent)
-                        }
-                )
-            }
-           Column(horizontalAlignment = Alignment.End){
+            .background(color = colorResource(id = R.color.baseBackground))
+            .verticalScroll(rememberScrollState())
+    ) {
+           Column(horizontalAlignment = Alignment.CenterHorizontally){
+               //uri가 null이면 이미지를 생성 안 하고 null이 아니면 가져온 이미지를 나타내는 코드
+               Glide.with(context)
+                   .asBitmap()
+                   .load(photoUri)
+                   .into(object: CustomTarget<Bitmap>() {
+                       override fun onResourceReady(
+                           resource: Bitmap,
+                           transition: Transition<in Bitmap>?
+                       ) {
+                           bitmap.value = resource
+                       }
+
+                       override fun onLoadCleared(placeholder: Drawable?) {
+                       }
+                   })
+
+               bitmap.value?.asImageBitmap()?.let {fetchedBitmap ->
+                   Image(
+                       bitmap = fetchedBitmap,
+                       contentDescription = "gallery_image",
+                       modifier = Modifier
+                           .padding(8.dp)
+                           .clickable {
+                               val photoIntent = Intent(Intent.ACTION_PICK)
+                               photoIntent.type = "image/*"
+                               launcher.launch(photoIntent)
+                           }
+                   )
+               } ?: Image(
+                   painter = painterResource(id = R.drawable.ic_account),
+                   contentDescription = null,
+                   modifier = Modifier
+                       .width(200.dp)
+                       .height(200.dp)
+                       .padding(8.dp)
+                       .clickable {
+                           val photoIntent = Intent(Intent.ACTION_PICK)
+                           photoIntent.type = "image/*"
+                           launcher.launch(photoIntent)
+                       }
+               )
+               //이미지와 함께 올라는 작성글 작성하는 공간
                TextField(
                    value = comment,
                    onValueChange = { comment = it },
@@ -111,14 +137,14 @@ fun Gallery(num: String, navController: NavController) {
                        .height(100.dp)
                        .padding(8.dp)
                )
-               
+               //이미지와 작성글, 아이디, 작성 시간, email을 버튼을 누르면 서버에 올리는 코드
                Button(
                    onClick = {
                        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
                        val imageFileName = "JPEG_" + timeStamp + "_.png"
                        val storageRef = storage.reference.child("images").child(imageFileName)
                        storageRef.putFile(photoUri!!).addOnSuccessListener {
-                           Toast.makeText(context, R.string.upload_success, Toast.LENGTH_SHORT).show()
+                           Log.d("pkw", "Gallery log: ${R.string.upload_success}")
 
                            val contentDTO = ContentDTO()
 
@@ -130,6 +156,7 @@ fun Gallery(num: String, navController: NavController) {
 
                            getNumberImage(contentDTO)
 
+                           Log.d("pkw", "Gallery navController: ${navController.currentBackStackEntry}")
                            navController.popBackStack()
                        }
                    },
@@ -141,6 +168,5 @@ fun Gallery(num: String, navController: NavController) {
                    Text(stringResource(id = R.string.upload_image))
                }
            }
-        }
     }
 }

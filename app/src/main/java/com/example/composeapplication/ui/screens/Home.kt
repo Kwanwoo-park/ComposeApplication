@@ -16,23 +16,17 @@ import com.google.firebase.auth.FirebaseUser
 
 var user: FirebaseUser? = null
 
-lateinit var contentDTOs: MutableList<ContentDTO>
-lateinit var contentUidList: MutableList<String>
-
 @Composable
-fun Home(num: String) {
+fun Home(num: String, contentDTOs: MutableList<ContentDTO>) {
     Log.d("pkw", "Home: $num")
-
-    contentDTOs = ArrayList()
-    contentUidList = ArrayList()
 
     user = FirebaseAuth.getInstance().currentUser
 
-    LazyColumn(modifier = Modifier.fillMaxSize()
+    Log.d("pkw", "ContentDTO: ${contentDTOs.size}")
+
+    LazyColumn(modifier = Modifier
+        .fillMaxSize()
         .background(color = colorResource(id = R.color.baseBackground))) {
-        items(
-            items = contentDTOs,
-            itemContent = { ItemDetail() }
-        )
+        items(contentDTOs) { ItemDetail(contentDTO = it)}
     }
 }

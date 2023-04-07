@@ -51,10 +51,12 @@ class LoginActivity: ComponentActivity() {
     private val GOOGLE_LOGIN_CODE = -1
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    //Google email 연동
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { resultss: ActivityResult ->
         if (resultss.resultCode == GOOGLE_LOGIN_CODE) {
             val results = Auth.GoogleSignInApi.getSignInResultFromIntent(resultss.data!!)
-            
+
+            //성공적으로 연동되면 회원가입 및 로그인
             if (results!!.isSuccess) {
                 val account = results.signInAccount
                 firebaseAuthWithGoogle(account!!)
@@ -85,15 +87,18 @@ class LoginActivity: ComponentActivity() {
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun LoginScreen() {
+        //Google login option
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
+        //Google login class 생성
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         val keyboardController = LocalSoftwareKeyboardController.current
 
+        //아이디와 비밀번호 저장하는 변수
         var id by remember { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
 
@@ -107,6 +112,7 @@ class LoginActivity: ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
+                //아이디 입력하는 칸
                 TextField(
                     value = id,
                     onValueChange = { id = it },
@@ -126,7 +132,7 @@ class LoginActivity: ComponentActivity() {
                         defaultKeyboardAction(imeAction = ImeAction.Next)
                     })
                 )
-
+                //비밀번호 입력하는 칸
                 TextField(
                     value = password,
                     onValueChange = { password = it },
@@ -147,7 +153,7 @@ class LoginActivity: ComponentActivity() {
                         keyboardController?.hide()
                     })
                 )
-                
+                //회원가입 및 로그인 버튼
                 Button(
                     onClick = { emailLogin(id, password) },
                     modifier = Modifier
@@ -157,7 +163,7 @@ class LoginActivity: ComponentActivity() {
                 ) {
                     Text(text = getString(R.string.signin_email))
                 }
-
+                //Google login button
                 Button(
                     onClick = { googleLogin() },
                     modifier = Modifier
@@ -171,6 +177,7 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
+    //Firebase Authentication에 이메일과 비밀번호 올리는 코드(회원가입)와 이미 회원가입했으면 로그인 메소드 호출
     private fun createAndLoginEmail(id: String, password: String) {
         auth?.createUserWithEmailAndPassword(id, password)
             ?.addOnCompleteListener { task ->
@@ -190,9 +197,10 @@ class LoginActivity: ComponentActivity() {
             }
     }
 
+    //메인화면으로 이동하는 메소드
     private fun moveMainPage(user: FirebaseUser?) {
         if (user != null) {
-            Toast.makeText(this, getString(R.string.signin_complete), Toast.LENGTH_SHORT).show()
+            Log.d("pkw", "moveMainPage log: ${getString(R.string.signin_complete)}")
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
@@ -201,12 +209,14 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
+    //구글 로그인 메소드
     private fun googleLogin() {
         val signInIntent = googleSignInClient.signInIntent
         val activityLauncher = resultLauncher
         activityLauncher.launch(signInIntent)
     }
 
+    //빈 칸 체크와 회원가입 메소드로 호출
     private fun emailLogin(id: String, password: String) {
         if (id.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, getString(R.string.signout_fail_null), Toast.LENGTH_SHORT).show()
@@ -216,6 +226,7 @@ class LoginActivity: ComponentActivity() {
         }
     }
 
+    //Firebase Authentication에 구글 이메일과 비밀번호 올리는 코드
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
 
@@ -247,6 +258,7 @@ class LoginActivity: ComponentActivity() {
             }
     }
 
+    //로그인 메소드
     private fun signInEmail(id: String, password: String) {
         auth?.signInWithEmailAndPassword(id, password)
             ?.addOnCompleteListener { task ->
@@ -259,6 +271,7 @@ class LoginActivity: ComponentActivity() {
             }
     }
 
+    //액티비티가 호출되면 바로 메인 화면 이동 메소드를 호출해서 자동로그인 구현
     override fun onStart() {
         super.onStart()
 

@@ -16,8 +16,11 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.composeapplication.databaseImage
 import com.example.composeapplication.databaseUser
+import com.example.composeapplication.model.ContentDTO
 import com.example.composeapplication.ui.drawer.*
+import com.example.composeapplication.ui.intro.contentDTOs
 import com.example.composeapplication.ui.login.LoginActivity
 import com.example.composeapplication.ui.screens.*
 import com.example.composeapplication.ui.theme.ComposeApplicationTheme
@@ -27,6 +30,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 class MainActivity : ComponentActivity() {
+    //Firebase Authentication 연동해서 현재 사용자 정보 가져오기
     val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +50,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen() {
+        //Firebase RealtimeDatabase와 연동해서 사용자 정보 가져오기
         var num = "1"
+
         databaseUser.addValueEventListener(object: ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (column in snapshot.children) {
@@ -62,12 +68,15 @@ class MainActivity : ComponentActivity() {
             }
         })
 
+        //Gallery 접근 허용
         ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
 
         Log.d("pkw", "MainScreen: $num")
 
+        //Bottom Navigation 이동 controller
         val navController = rememberNavController()
-        
+
+        //Bottom Navigation Menu
         Scaffold(
             bottomBar = { BottomNavigation(navController = navController)}
         ) {
@@ -77,11 +86,12 @@ class MainActivity : ComponentActivity() {
                     startDestination = DrawerActivity.Home.route
                 ) {
                     composable(DrawerActivity.Home.route) {
+                        //만약 현재 사용자 없다 -> 로그아웃으로 판별 -> 로그인 화면으로 이동
                         if (auth.currentUser?.uid.isNullOrEmpty()){
                             startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                             finish()
                         }
-                        Home(num)
+                        Home(num, contentDTOs)
                     }
                     composable(DrawerActivity.Search.route) {
                         Search ()
