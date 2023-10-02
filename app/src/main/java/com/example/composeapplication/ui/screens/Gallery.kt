@@ -136,6 +136,7 @@ fun Gallery(num: String, navController: NavController) {
                    modifier = Modifier
                        .fillMaxWidth()
                        .height(100.dp)
+                       .width(100.dp)
                        .padding(8.dp)
                )
                //이미지와 작성글, 아이디, 작성 시간, email을 버튼을 누르면 서버에 올리는 코드
